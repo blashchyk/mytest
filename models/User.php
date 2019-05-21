@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+
 class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
 {
     public $id;
@@ -10,21 +11,13 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
     public $authKey;
     public $accessToken;
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
+    private static $users = [];
+    private static $user_key = [
+        'id',
+        'username',
+        'password',
+        'authKey',
+        'accessToken'
     ];
 
 
@@ -33,6 +26,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findIdentity($id)
     {
+        self::getUsers();
         return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
     }
 
@@ -41,6 +35,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
+        self::getUsers();
         foreach (self::$users as $user) {
             if ($user['accessToken'] === $token) {
                 return new static($user);
@@ -58,6 +53,7 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
+        self::getUsers();
         foreach (self::$users as $user) {
             if (strcasecmp($user['username'], $username) === 0) {
                 return new static($user);
@@ -65,6 +61,18 @@ class User extends \yii\base\BaseObject implements \yii\web\IdentityInterface
         }
 
         return null;
+    }
+
+    private static function getUsers()
+    {
+        $db_user = \Yii::getAlias('@db_user');
+        $users = file(\Yii::$app->basePath . '/' . $db_user);
+        foreach ($users as $user_str) {
+            $user_data = explode('|', $user_str);
+            $user = array_combine(self::$user_key, $user_data);
+            self::$users[$user['id']] = $user;
+        }
+
     }
 
     /**
