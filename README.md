@@ -231,3 +231,12 @@ vendor/bin/codecept run functional,unit -- --coverage-html --coverage-xml
 ```
 
 You can see code coverage output under the `tests/_output` directory.
+
+Installation:
+
+1. composer install
+2. Дать права на запись в директории /web/assets
+
+Доступы для входа:
+Username: admin пароль: admin
+Username: demo пароль: demo 
